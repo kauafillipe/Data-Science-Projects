@@ -5,27 +5,31 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 df = pd.read_csv('pokemon.csv')
+df['weight_kg'].fillna(df['weight_kg'].mean(), inplace = True)
+df['height_m'].fillna(df['height_m'].mean(), inplace = True)
+df['type2'].fillna('Não tem', inplace = True)
 df.loc[df["capture_rate"] == '30 (Meteorite)255 (Core)', "capture_rate"] = '30'
-df = df.astype({'capture_rate' : 'int64'})
+df = df.astype({'capture_rate' : 'int64'}) 
 
-st.set_page_config(page_icon="poke_pika_wink.png", page_title="PokeProject")
+st.set_page_config(page_icon="Images\poke_pika_wink.png", page_title="PokeProject")
+
 
 #título da página e imagem da pokebola
 a, b = st.columns([1, 6])
 with a:
     st.text("")
     st.text("")
-    st.image("pokeball.png", width= 100)
+    st.image("Images\pokeball.png", width= 100)
 with b:
-    st.image("pokeprojeto.png", width= 600)
+    st.image("Images\pokeprojeto.png", width= 600)
 
 #visualização do dataframe
 st.dataframe(df)
 
 #visualização de pokémons
 
-st.image('whopoke.jpg', width = 700)
-st.image('pokewho.png', width = 700)
+st.image('Images\whopoke.jpg', width = 700)
+st.image('Images\pokewho.png', width = 700)
 
 st.markdown('#### **Gerações de Pokemóns:** ') #gerações
 generation = st.selectbox(
@@ -133,7 +137,7 @@ st.write("")
 #visualização de gráficos
 import plotly.express as px
 
-st.image("pokegraficos.png", width = 300)
+st.image("Images\pokegraficos.png", width = 300)
 
 col1, col2 = st.columns(2)
 with col1: 
@@ -158,16 +162,45 @@ chosen_base_stat = st.radio("Escolha uma base_stat", ["base_egg_steps", "base_ha
 fig = px.scatter_3d(df, x='weight_kg', y='height_m', z='is_legendary', color= chosen_base_stat)
 st.plotly_chart(fig)
 
+with st.expander("Quer uma explicação?"):
+    if chosen_base_stat == "base_egg_steps":
+     st.write("""
+         O gráfico em 3D acima apresenta a relação entre base_egg_steps, peso, altura e se um Pokémon é lendário ou não.
+         
+         Podemos concluir a partir dele que há uma clara influência do fator "ser lendário". Pokémons lendários tendem a exigir um número
+         de passos muito grande para que seus ovos sejam chocados. Já Pokémons não lendários, por outro lado, não.
+         
+         Nota-se ainda que, no geral, quanto maior a altura e o peso de um Pokémon, maior será a quantidade de passos para chocar seus ovos também. 
+         
+         No entanto, perceba que há alguns dados que fogem dessa conclusão. Isso é válido tanto para os que são lendários
+         como para os que não são. 
+         
+         Portanto, há sim uma clara influência de base_egg_steps na altura e no peso dos Pokémons, mas, definitivamente,
+         é bem menor que o fator "ser lendário".
+     """)
+    
+    if chosen_base_stat == "base_happiness":
+     st.write("""
+         O gráfico em 3D acima apresenta a relação entre base_happiness, peso, altura e se um Pokémon é lendário ou não.
+     
+         Podemos concluir a partir dele que há uma clara influência do fator "ser lendário". Pokémons lendários tendem a ser mais infelizes.
+         Já Pokémons não lendários, por outro lado, são mais felizes.
+
+         Quanto à altura e ao peso, nota-se que, principalmente no caso dos Pokémons lendários, muito provavelmente um Pokémon será feliz se 
+         seu peso e sua altura forem pequenos. Do contrário, o gráfico acima indica que é provável que ele tenda à infelicidade ou à baixa felicidade.
+    
+         Nesse caso, podemos ver uma influência mais nítida da base_stat "felicidade" no que se refere ao peso e à altura de um Pokémon.
+     """)
 st.markdown('#### Veja as relações acima de outra forma:')
 
 fig = px.scatter(df, x="weight_kg", y="height_m", color = 'base_egg_steps', facet_col = 'is_legendary')
 st.plotly_chart(fig, use_container_width=True)
 
-fig = px.scatter(df, x="weight_kg", y="height_m", color = 'base_egg_steps', facet_col = 'is_legendary')
+fig = px.scatter(df, x="weight_kg", y="height_m", color = 'base_happiness', facet_col = 'is_legendary')
 st.plotly_chart(fig, use_container_width=True)
 
 #modelo preditivo de pokemóns lendários na barra lateral esquerda
-st.sidebar.image("pokevision.png", width= 300)
+st.sidebar.image("Images\pokevision.png", width= 300)
 
 st.sidebar.markdown('#### Não perca seu tempo! Faça como a Wanda: crie sua PokéRealidade e preveja se seu Pokémon será lendário ou não.') #predição 1
 
@@ -208,7 +241,7 @@ import base64
 #visualização do resultado do modelo
 if prediction == 1:
     st.sidebar.success(f'Que demais! {poke_name} é um Pokemon lendário!')
-    file_ = open("wandadancing.gif", "rb")
+    file_ = open("Images\wandadancing.gif", "rb")
     contents = file_.read()
     data_url = base64.b64encode(contents).decode("utf-8")
     file_.close()
@@ -220,7 +253,7 @@ if prediction == 1:
 else:
     st.sidebar.error(f'Puxa... {poke_name} não é um Pokemon lendário...')
 
-    file_ = open("mondays.gif", "rb")
+    file_ = open("Images\mondays.gif", "rb")
     contents = file_.read()
     data_url = base64.b64encode(contents).decode("utf-8")
     file_.close()
@@ -253,7 +286,6 @@ new_pokemon = {'trainer' : poke_trainer, 'name': poke_name, 'generation': 'Turin
 'percentage_male': str(percentage_male), 'pokedex_number' : '802'}
 
 #tipos 1 e 2
-df['type2'].fillna('Não tem', inplace = True)
 values_type1 = list(pokeframe['type1'].unique())
 chosen_type1 = np.random.choice(values_type1)
 values_type2 = list(pokeframe['type2'].unique())
@@ -286,14 +318,13 @@ ab_gen = ['Berserk', 'Battle Armor', 'Magician']
 def def_abs(type1, type2):
     first_type = np.random.choice(range(1,5))
     sec_type = gen_type = 0
+    abs_1 = np.random.choice(ab_dict[type1], first_type, replace = False)
     if type2 != 'Não tem':
         sec_type = 4 - first_type
-        abs_1 = np.random.choice(ab_dict[type1], first_type, replace = False)
         if(sec_type != 0): 
             abs_2 = np.random.choice(ab_dict[type2], sec_type, replace = False)
     else:
         gen_type = 4 - first_type
-        abs_1 = np.random.choice(ab_dict[type1], first_type, replace = False)
         if(gen_type != 0):
             abs_2 = np.random.choice(ab_gen, gen_type, replace = False)
     if(type2 != 'Não tem' and sec_type != 0 or gen_type != 0):
@@ -398,10 +429,8 @@ attack = lr_model(['defense', 'base_total'], ['attack'], 2, [defense, base_total
 
 hp = lr_model(['attack', 'base_total'], ['hp'], 1, [attack, base_total], 1)
 
-df['weight_kg'] = df['weight_kg'].fillna(df['weight_kg'].mean())
 weight_kg = lr_model(['base_egg_steps', 'base_total'], ['weight_kg'], 1, [base_egg_steps, base_total])
 
-df['height_m'] = df['height_m'].fillna(df['height_m'].mean())
 height_m = lr_model(['weight_kg', 'base_total'], ['height_m'], 0.0001, [weight_kg, base_total])
 
 speed = lr_model(['sp_attack', 'base_total'], ['speed'], 0.001, [sp_attack, base_total], 1)
@@ -465,6 +494,17 @@ chosen_column = st.selectbox("Escolha uma categoria: ", (df.columns.drop('is_leg
 fig = px.box(df, x="is_legendary", y= chosen_column)
 st.plotly_chart(fig, use_container_width=True)
 
+with st.expander("Quer uma dica?"):
+     st.write("""
+        Se eu fosse você, treinador, escolheria os fatores "sp_attack", "capture_rate" e "base_egg_steps".
+
+        Veja que o gráfico boxplot desses fatores nos indica que essas características dividem fortemente um Pokémon lendário de um não lendário.
+
+        Se fôssemos construir um modelo preditivo do fator "ser lendário", seria bastante interessante utilizar esses fatores como nossas features, né?
+
+        Mas será que existem outros fatores que também diferenciam um Pokémon lendário de um não lendário? Visualize outros gráficos e tire suas próprias conclusões!
+     """)
+
 # Agora sim, vamos visualizar o Pokémon criado anteriormente.
 
 poke_button = 0
@@ -472,7 +512,7 @@ poke_button = st.sidebar.button('Crie seu Pokemon')
 
 col1, col2 = st.columns(2)
 with col1:
-    st.image("meupokemon.png", width = 300)
+    st.image("Images\meupokemon.png", width = 300)
     if poke_button:
         st.write("")
         st.write("")
@@ -483,8 +523,8 @@ with col1:
         st.image("https://raw.githubusercontent.com/HybridShivam/Pokemon/master/assets/thumbnails-compressed/802.png")
         st.write(new_pokemon)
     else:
-        st.image("ashpika.png", width = 300)
-        file_ = open("pikacry.gif", "rb")
+        st.image("Images\pikaash.png", width = 300)
+        file_ = open("Images\pikacry.gif", "rb")
         contents = file_.read()
         data_url = base64.b64encode(contents).decode("utf-8")
         file_.close()
@@ -494,7 +534,7 @@ with col1:
             unsafe_allow_html=True,
         )
 with col2: 
-    st.image("pokedex.png", width = 200)
+    st.image("Images\pokedex.png", width = 200)
     pokemon = 'Squirtle'
     pokemon = st.selectbox(
         'Escolha um pokemon',
